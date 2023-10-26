@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">Aura Configuração</string>
+    <string name="app_txt">Teste Da Tela</string>
+    <string name="ble_not_supported">BLE is not supported</string>
+    <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
+    <string name="name_unk">Unknown</string>
+    <string name="action_scan">Iniciar Scan</string>
+    <string name="action_stop">Parar Scan</string>
+    <string name="spinner_hint">Selecione</string>
+    <string name="action_refresh">Buscar Dados</string>
+    <string name="txt_acess">float button</string>
+    <string name="zona1_txt">Distância Zona 1</string>
+    <string name="zona2_txt">Distância Zona 2</string>
+    <string name="taxareq_txt">Taxa de Requisição </string>
+    <string name="button">enviar</string>
+    <string name="reconectar">Reconectar</string>
+    <string name="menu_connect">Conectar</string>
+    <string name="menu_disconnect">Desconectar</string>
+    <string name="menu_scan">Scan</string>
+    <string name="menu_stop">Stop</string>
+    <string name="label_data">Data:</string>
+    <string name="label_device_address">Device address:</string>
+    <string name="label_state">Estado:</string>
+    <string name="default_characteristic">Default characteristic</string>
+    <string name="default_service">Default service</string>
+    <string name="connected">Conectado</string>
+    <string name="disconnected">Desconectado</string>
+    <string name="no_data">No data</string>
+    <string name="title_devices">Ble Scan Home</string>
+    <string name="label_device_name">Nome Dispositivo:</string>
+    <string name="title_control">Configurações</string>
+    <string name="unidade_txt">(centímetros)</string>
+    <string name="unidadeTR_txt">(milissegundo)</string>
+    <string name="filtro_txt">Pesquisar</string>
+    <string name="ex_name">Informe o nome do dispositivo</string>
+    <string name="perifericos_txt">Periféricos</string>
+    <string name="offset_txt">Offset</string>
+    <string name="action_solicit">Solicitar Informação</string>
+
+    <string-array name="spinner_txt">
+        <item>@string/spinner_hint</item>
+        <item>650</item>
+        <item>380</item>
+        <item>1300</item>
+    </string-array>
+    <string-array name="spinner_pr">
+        <item>@string/spinner_hint</item>
+        <item>Forklift</item>
+        <item>Over Crane</item>
+        <item>Access Control</item>
+    </string-array>
+</resources>

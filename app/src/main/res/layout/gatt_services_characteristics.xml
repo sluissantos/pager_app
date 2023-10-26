@@ -1,0 +1,1128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/setAuraMode"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="10dp"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/parent_1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/layout_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toTopOf="@id/parent_1">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_device_name"
+                android:textSize="18sp" />
+
+            <Space
+                android:layout_width="5dp"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/device_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_state"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/layout_name">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_state"
+                android:textSize="18sp" />
+
+            <Space
+                android:layout_width="5dp"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/connection_state"
+                android:layout_width="126dp"
+                android:layout_height="wrap_content"
+                android:text="@string/disconnected"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <Space
+                android:layout_width="79dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/reconnectButton"
+                android:layout_width="156dp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#26619C"
+                android:onClick="handleReconnect"
+                android:singleLine="true"
+                android:text="@string/reconectar" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_textTaxa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/layout_state">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/taxareq_txt"
+                android:textSize="18sp" />
+
+            <Space
+                android:layout_width="5dp"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/submit_tx"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#26619C"
+            android:onClick="handleTx"
+            android:singleLine="true"
+            android:text="@string/button"
+            app:layout_constraintBottom_toTopOf="@+id/spinner"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            app:layout_constraintHorizontal_bias="0.900"
+            app:layout_constraintStart_toEndOf="@+id/layout_textTaxa"
+            app:layout_constraintTop_toBottomOf="@+id/layout_state" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:backgroundTint="#26619C"
+            android:entries="@array/spinner_txt"
+            android:padding="5dp"
+            app:layout_constraintBottom_toBottomOf="@+id/layout_unitTx"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            app:layout_constraintHorizontal_bias="0.900"
+            app:layout_constraintStart_toEndOf="@+id/layout_unitTx"
+            app:layout_constraintTop_toBottomOf="@+id/layout_textTaxa" />
+
+        <LinearLayout
+            android:id="@+id/layout_unitTx"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/layout_textTaxa">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="@string/unidadeTR_txt"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="15sp"
+                android:textStyle="italic" />
+
+            <Space
+                android:layout_width="5dp"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_textD1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/layout_unitTx">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="@string/zona1_txt"
+                android:textSize="18sp" />
+
+            <Space
+                android:layout_width="5dp"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/submit_d1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#26619C"
+            android:onClick="handleD1"
+            android:singleLine="true"
+            android:text="@string/button"
+            app:layout_constraintBottom_toTopOf="@+id/layout_edit_d1"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            app:layout_constraintHorizontal_bias="0.900"
+            app:layout_constraintStart_toEndOf="@+id/layout_textD1"
+            app:layout_constraintTop_toBottomOf="@+id/layout_unitTx" />
+
+        <LinearLayout
+            android:id="@+id/layout_unitD1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/layout_textD1">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="@string/unidade_txt"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="15sp"
+                android:textStyle="italic" />
+
+            <Space
+                android:layout_width="5dp"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_edit_d1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@id/layout_textD2"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/layout_unitD1">
+
+            <EditText
+                android:id="@+id/zona1_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:ems="10"
+                android:inputType="number"
+                android:maxLength="5"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="26dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/layout_edit_d1"
+                app:layout_constraintEnd_toEndOf="@id/layout_edit_d1"
+                app:layout_constraintStart_toStartOf="@id/layout_edit_d1"
+                app:layout_constraintTop_toTopOf="@id/layout_edit_d1"
+                tools:ignore="MissingConstraints,NotSibling" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageButton
+            android:id="@+id/up_button1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:onClick="handleAdd1"
+            android:padding="3dp"
+            android:src="@drawable/ic_baseline_arrow_drop_up_24"
+            app:layout_constraintBottom_toTopOf="@id/down_button1"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            app:layout_constraintTop_toTopOf="@id/layout_edit_d1" />
+
+        <ImageButton
+            android:id="@+id/down_button1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="10sp"
+            android:background="@android:color/transparent"
+            android:onClick="handleSub1"
+            android:padding="3dp"
+            android:src="@drawable/ic_baseline_arrow_drop_down_24"
+            app:layout_constraintBottom_toBottomOf="@id/layout_edit_d1"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/up_button1" />
+
+        <LinearLayout
+            android:id="@+id/layout_textD2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/layout_edit_d1">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="@string/zona2_txt"
+                android:textSize="18sp" />
+
+            <Space
+                android:layout_width="5dp"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/submit_d2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#26619C"
+            android:onClick="handleD2"
+            android:singleLine="true"
+            android:text="@string/button"
+            app:layout_constraintBottom_toTopOf="@+id/layout_edit_d2"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            app:layout_constraintHorizontal_bias="0.900"
+            app:layout_constraintStart_toEndOf="@+id/layout_textD2"
+            app:layout_constraintTop_toBottomOf="@+id/layout_edit_d1" />
+
+        <LinearLayout
+            android:id="@+id/layout_unitD2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/layout_textD2">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="@string/unidade_txt"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="15sp"
+                android:textStyle="italic" />
+
+            <Space
+                android:layout_width="5dp"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_edit_d2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/layout_unitD2">
+
+            <EditText
+                android:id="@+id/zona2_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:ems="10"
+                android:inputType="number"
+                android:maxLength="5"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="26dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/layout_edit_d1"
+                app:layout_constraintStart_toStartOf="@id/layout_edit_d2"
+                app:layout_constraintTop_toBottomOf="@id/submit_d2"
+                tools:ignore="MissingConstraints,NotSibling" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageButton
+            android:id="@+id/up_button2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:onClick="handleAdd2"
+            android:padding="3dp"
+            android:src="@drawable/ic_baseline_arrow_drop_up_24"
+            app:layout_constraintBottom_toTopOf="@id/down_button2"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            app:layout_constraintTop_toTopOf="@id/layout_edit_d2" />
+
+        <ImageButton
+            android:id="@+id/down_button2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="10sp"
+            android:background="@android:color/transparent"
+            android:onClick="handleSub2"
+            android:padding="3dp"
+            android:src="@drawable/ic_baseline_arrow_drop_down_24"
+            app:layout_constraintBottom_toBottomOf="@id/layout_edit_d2"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/up_button2" />
+
+        <!--        <LinearLayout
+            android:id="@+id/layout_button"
+            app:layout_constraintTop_toBottomOf="@id/layout_edit_d2"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/submit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#26619C"
+                android:onClick="handleText"
+                android:singleLine="true"
+                android:text="@string/button"/>
+        </LinearLayout>
+        -->
+
+        <LinearLayout
+            android:id="@+id/layout_textPerifericos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/layout_edit_d2">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="@string/perifericos_txt"
+                android:textSize="18sp" />
+
+            <Space
+                android:layout_width="5dp"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_textOffset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="30dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/text_pr">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="@string/offset_txt"
+                android:textSize="18sp" />
+
+            <Space
+                android:layout_width="5dp"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <Spinner
+            android:id="@+id/spinner_pr"
+            style="@style/SpinnerStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:backgroundTint="#26619C"
+            app:layout_constraintBottom_toBottomOf="@+id/layout_textPerifericos"
+            app:layout_constraintEnd_toStartOf="@+id/false_spinner_pr"
+            app:layout_constraintStart_toEndOf="@+id/layout_textPerifericos"
+            app:layout_constraintTop_toBottomOf="@+id/layout_edit_d2"></Spinner>
+
+        <ImageButton
+            android:id="@+id/false_spinner_pr"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/image_button_selector"
+            android:onClick="spinnerTest"
+            android:padding="3dp"
+            android:src="@drawable/ic_baseline_update_24"
+            app:layout_constraintBottom_toTopOf="@+id/submit_of"
+            app:layout_constraintEnd_toEndOf="@+id/parent_1"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/spinner_pr"
+            app:layout_constraintTop_toBottomOf="@+id/layout_edit_d2"
+            app:layout_constraintVertical_bias="0.400">
+
+        </ImageButton>
+
+        <Button
+            android:id="@+id/submit_of"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#26619C"
+            android:onClick="handleOF"
+            android:text="@string/button"
+            app:layout_constraintBottom_toTopOf="@+id/layout_edit_of"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            app:layout_constraintHorizontal_bias="0.900"
+            app:layout_constraintStart_toEndOf="@+id/layout_textOffset"
+            app:layout_constraintTop_toBottomOf="@+id/spinner_pr">
+
+        </Button>
+
+        <LinearLayout
+            android:id="@+id/layout_unitOf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/layout_textOffset">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="@string/unidade_txt"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="15sp"
+                android:textStyle="italic" />
+
+            <Space
+                android:layout_width="5dp"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/offset_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:ems="10"
+            android:inputType="number"
+            android:maxLength="5"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="26dp"
+            android:textStyle="bold"
+            tools:layout_editor_absoluteX="5dp"
+            tools:layout_editor_absoluteY="554dp" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_edit_of"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="@id/parent_1"
+            app:layout_constraintEnd_toEndOf="@id/parent_1"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@id/layout_unitOf"
+            app:layout_constraintVertical_bias="0.0">
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/text_pr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/layout_textOffset"
+            app:layout_constraintStart_toStartOf="@id/parent_1"
+            app:layout_constraintTop_toBottomOf="@+id/layout_textPerifericos"
+            tools:layout_editor_absoluteX="14dp" />
+
+        <ImageButton
+            android:id="@+id/down_button3"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:onClick="handleSub3"
+            android:padding="3dp"
+            android:src="@drawable/ic_baseline_arrow_drop_down_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/up_button3" />
+
+        <ImageButton
+            android:id="@+id/up_button3"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="500dp"
+            android:background="@android:color/transparent"
+            android:onClick="handleAdd3"
+            android:padding="3dp"
+            android:src="@drawable/ic_baseline_arrow_drop_up_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/layout_state" />
+
+        <TextView
+            android:id="@+id/zona1_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="10dp"
+            android:text=""
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@+id/submit_d1"
+            app:layout_constraintHorizontal_bias="0.183"
+            app:layout_constraintStart_toEndOf="@+id/layout_textD1"
+            app:layout_constraintTop_toTopOf="@+id/layout_textD1" />
+
+        <TextView
+            android:id="@+id/zona2_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="10dp"
+            android:text=""
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@+id/submit_d2"
+            app:layout_constraintHorizontal_bias="0.180"
+            app:layout_constraintStart_toEndOf="@+id/layout_textD2"
+            app:layout_constraintTop_toTopOf="@+id/layout_textD2" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:layout_editor_absoluteX="-37dp">
+
+            <Button
+                android:id="@+id/otaStart"
+                android:layout_width="370dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="615dp"
+                android:onClick="handleOtaStart"
+                android:text="OTA START"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/setOtaURL"
+                android:layout_width="370dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:onClick="handlesetOtaURL"
+                android:text="SET OTA URL"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/otaStart" />
+
+            <TextView
+                android:id="@+id/http"
+                android:layout_width="55dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="10dp"
+                android:text="http://"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/setOtaURL" />
+
+            <EditText
+                android:id="@+id/firstIp_edit"
+                android:layout_width="45dp"
+                android:layout_height="40dp"
+                android:ems="10"
+                android:hint="255"
+                android:inputType="number"
+                android:textAlignment="center"
+                app:layout_constraintStart_toEndOf="@+id/http"
+                app:layout_constraintTop_toTopOf="@+id/http" />
+
+            <EditText
+                android:id="@+id/secondIp_edit"
+                android:layout_width="45dp"
+                android:layout_height="40dp"
+                android:ems="10"
+                android:hint="255"
+                android:inputType="number"
+                android:textAlignment="center"
+                app:layout_constraintStart_toEndOf="@+id/firstIp_edit"
+                app:layout_constraintTop_toTopOf="@+id/http" />
+
+            <EditText
+                android:id="@+id/thirdIp_edit"
+                android:layout_width="45dp"
+                android:layout_height="40dp"
+                android:ems="10"
+                android:hint="255"
+                android:inputType="number"
+                android:textAlignment="center"
+                app:layout_constraintStart_toEndOf="@+id/secondIp_edit"
+                app:layout_constraintTop_toTopOf="@+id/http" />
+
+            <EditText
+                android:id="@+id/fourthIp_edit"
+                android:layout_width="45dp"
+                android:layout_height="40dp"
+                android:ems="10"
+                android:hint="255"
+                android:inputType="number"
+                android:textAlignment="center"
+                app:layout_constraintStart_toEndOf="@+id/thirdIp_edit"
+                app:layout_constraintTop_toTopOf="@+id/http" />
+
+            <TextView
+                android:id="@+id/porta"
+                android:layout_width="55dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="20dp"
+                android:text="Porta"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                app:layout_constraintStart_toEndOf="@+id/fourthIp_edit"
+                app:layout_constraintTop_toTopOf="@+id/http" />
+
+            <EditText
+                android:id="@+id/port_idit"
+                android:layout_width="55dp"
+                android:layout_height="40dp"
+                android:ems="10"
+                android:hint="8080"
+                android:inputType="number"
+                android:textAlignment="center"
+                app:layout_constraintStart_toEndOf="@+id/porta"
+                app:layout_constraintTop_toTopOf="@+id/http" />
+
+            <Button
+                android:id="@+id/dfuStart"
+                android:layout_width="370dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:onClick="handleDfuStart"
+                android:text="DFU START"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/firstIp_edit" />
+
+
+            <Button
+                android:id="@+id/getOvercraneParam"
+                android:layout_width="185dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:onClick="handleGetOvercraneParam"
+                android:text="GET OVER CRANE PARAM"
+                android:textAlignment="center"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dfuStart" />
+
+            <Button
+                android:id="@+id/setOvercraneParam"
+                android:layout_width="185dp"
+                android:layout_height="50dp"
+                android:onClick="handleSetOverCraneParam"
+                android:text="SET OVER CRANE PARAM"
+                android:textSize="12sp"
+                app:layout_constraintStart_toEndOf="@+id/getOvercraneParam"
+                app:layout_constraintTop_toTopOf="@+id/getOvercraneParam" />
+
+            <TextView
+                android:id="@+id/Offset"
+                android:layout_width="123.33dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="10dp"
+                android:text="OffSet"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/getOvercraneParam" />
+
+            <EditText
+                android:id="@+id/xOffset_edit"
+                android:layout_width="123.33dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="10dp"
+                android:ems="10"
+                android:hint="X"
+                android:inputType="number"
+                android:textAlignment="center"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/Offset" />
+
+            <EditText
+                android:id="@+id/yOffset_edit"
+                android:layout_width="123.33dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="10dp"
+                android:ems="10"
+                android:hint="Y"
+                android:inputType="number"
+                android:textAlignment="center"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/xOffset_edit" />
+
+            <TextView
+                android:id="@+id/SecuteDistance"
+                android:layout_width="123.33dp"
+                android:layout_height="30dp"
+                android:text="Secure Distance"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@+id/Offset"
+                app:layout_constraintTop_toBottomOf="@+id/getOvercraneParam" />
+
+            <EditText
+                android:id="@+id/minSecureDist_edit"
+                android:layout_width="123.33dp"
+                android:layout_height="40dp"
+                android:ems="10"
+                android:hint="Min"
+                android:inputType="number"
+                android:textAlignment="center"
+                app:layout_constraintStart_toEndOf="@+id/xOffset_edit"
+                app:layout_constraintTop_toBottomOf="@+id/SecuteDistance" />
+
+            <EditText
+                android:id="@+id/maxSecureDist_edit"
+                android:layout_width="123.33dp"
+                android:layout_height="40dp"
+                android:ems="10"
+                android:hint="Max"
+                android:inputType="number"
+                android:textAlignment="center"
+                app:layout_constraintStart_toEndOf="@+id/yOffset_edit"
+                app:layout_constraintTop_toBottomOf="@+id/minSecureDist_edit" />
+
+            <TextView
+                android:id="@+id/Height"
+                android:layout_width="123.33dp"
+                android:layout_height="30dp"
+                android:text="Height"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@+id/SecuteDistance"
+                app:layout_constraintTop_toBottomOf="@+id/getOvercraneParam" />
+
+            <EditText
+                android:id="@+id/minAltura_edit"
+                android:layout_width="123.33dp"
+                android:layout_height="40dp"
+                android:ems="10"
+                android:hint="Min"
+                android:inputType="number"
+                android:textAlignment="center"
+                app:layout_constraintStart_toEndOf="@+id/minSecureDist_edit"
+                app:layout_constraintTop_toBottomOf="@+id/Height" />
+
+            <EditText
+                android:id="@+id/maxAltura_edit"
+                android:layout_width="123.33dp"
+                android:layout_height="40dp"
+                android:ems="10"
+                android:hint="Max"
+                android:inputType="number"
+                android:textAlignment="center"
+                app:layout_constraintStart_toEndOf="@+id/maxSecureDist_edit"
+                app:layout_constraintTop_toBottomOf="@+id/minAltura_edit" />
+
+            <Button
+                android:id="@+id/auraMode"
+                android:layout_width="270dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:onClick="handleSetAuraMode"
+                android:text="Aura Mode"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/yOffset_edit" />
+
+            <EditText
+                android:id="@+id/setMode_edit"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:ems="10"
+                android:hint="Insira o modo"
+                android:inputType="number"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                app:layout_constraintStart_toEndOf="@+id/auraMode"
+                app:layout_constraintTop_toTopOf="@+id/auraMode" />
+
+            <Button
+                android:id="@+id/fixTag"
+                android:layout_width="270dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:onClick="handleFixTag"
+                android:text="FIX TAG"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/auraMode" />
+
+            <EditText
+                android:id="@+id/fixTag_edit"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:hint="0xFFFF"
+                android:inputType="text|textNoSuggestions"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                app:layout_constraintStart_toEndOf="@+id/fixTag"
+                app:layout_constraintTop_toTopOf="@+id/fixTag" />
+
+            <Button
+                android:id="@+id/versionRequest"
+                android:layout_width="370dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:onClick="handleVersionRequest"
+                android:text="VERSION REQUEST"
+                android:textAlignment="center"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/fixTag" />
+
+            <Button
+                android:id="@+id/setDecaWaveIDList"
+                android:layout_width="370dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:onClick="handleSetDecawaveIDList"
+                android:text="SET DECAWAVE ID LIST (PERIPHERALS)"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/versionRequest" />
+
+            <EditText
+                android:id="@+id/firstDecawaveID_edit"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="20dp"
+                android:ems="10"
+                android:hint="0xFFFF"
+                android:inputType="text"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/setDecaWaveIDList" />
+
+            <EditText
+                android:id="@+id/secondDecawaveID_edit"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="25dp"
+                android:ems="10"
+                android:hint="0xFFFF"
+                android:inputType="text"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                app:layout_constraintStart_toEndOf="@+id/firstDecawaveID_edit"
+                app:layout_constraintTop_toTopOf="@+id/firstDecawaveID_edit" />
+
+            <EditText
+                android:id="@+id/thirdDecawaveID_edit"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="25dp"
+                android:ems="10"
+                android:hint="0xFFFF"
+                android:inputType="text"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                app:layout_constraintStart_toEndOf="@+id/secondDecawaveID_edit"
+                app:layout_constraintTop_toTopOf="@+id/firstDecawaveID_edit" />
+
+            <Button
+                android:id="@+id/setNearDistance"
+                android:layout_width="270dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:onClick="handleSetNearDistance"
+                android:text="ZONA VERMELHA"
+                android:textAlignment="center"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/firstDecawaveID_edit" />
+
+            <EditText
+                android:id="@+id/nearDistance_edit"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:ems="10"
+                android:hint="mm"
+                android:inputType="number"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@+id/setNearDistance"
+                app:layout_constraintTop_toTopOf="@+id/setNearDistance" />
+
+            <Button
+                android:id="@+id/setFarDistance"
+                android:layout_width="270dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:onClick="handleSetFarDistance"
+                android:text="ZONA AMARELA"
+                android:textAlignment="center"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/setNearDistance" />
+
+            <EditText
+                android:id="@+id/farDistance_edit"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:ems="10"
+                android:hint="mm"
+                android:inputType="number"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@+id/setFarDistance"
+                app:layout_constraintTop_toTopOf="@+id/setFarDistance" />
+
+            <Button
+                android:id="@+id/setTagIdDistance"
+                android:layout_width="370dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:onClick="handleSetTagIdDistance"
+                android:text="SET TAG  ID DISTANCE"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/setFarDistance" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="123.33dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="10dp"
+                android:text="DEVICE"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/setTagIdDistance" />
+
+            <EditText
+                android:id="@+id/deviceTagIdDistance_edit"
+                android:layout_width="123.33dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="10dp"
+                android:ems="10"
+                android:inputType="number"
+                android:textAlignment="center"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="123.33dp"
+                android:layout_height="30dp"
+                android:text="TAG"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@+id/textView"
+                app:layout_constraintTop_toTopOf="@+id/textView" />
+
+            <EditText
+                android:id="@+id/tagTagIdDistance_edit"
+                android:layout_width="123.33dp"
+                android:layout_height="40dp"
+                android:ems="10"
+                android:hint="0xFFFF"
+                android:inputType="text"
+                android:textAlignment="center"
+                app:layout_constraintStart_toEndOf="@+id/textView"
+                app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="123.33sp"
+                android:layout_height="30sp"
+                android:text="DISTANCE"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@+id/textView2"
+                app:layout_constraintTop_toTopOf="@+id/textView" />
+
+            <EditText
+                android:id="@+id/distanceTagIdDistance_edit"
+                android:layout_width="123.33dp"
+                android:layout_height="40dp"
+                android:ems="10"
+                android:inputType="number"
+                android:textAlignment="center"
+                app:layout_constraintStart_toEndOf="@+id/tagTagIdDistance_edit"
+                app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+            <ScrollView
+                android:id="@+id/scrollLog"
+                android:layout_width="370dp"
+                android:layout_height="300dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="320dp"
+                android:fadeScrollbars="false"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/firstDecawaveID_edit">
+
+                <EditText
+                    android:id="@+id/editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start|top"
+                    android:inputType="textMultiLine"
+                    android:maxLines="1000"
+                    android:scrollbars="vertical" />
+            </ScrollView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/offset_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="10dp"
+            android:text=""
+            android:textColor="@android:color/holo_blue_light"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/layout_textOffset"
+            app:layout_constraintEnd_toStartOf="@+id/submit_of"
+            app:layout_constraintHorizontal_bias="0.180"
+            app:layout_constraintStart_toEndOf="@+id/layout_textOffset"
+            app:layout_constraintTop_toTopOf="@+id/layout_textOffset" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
