@@ -38,7 +38,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,27 +54,22 @@ public class DeviceScanActivity extends AppCompatActivity implements RecyclerVie
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
     private static final int PERMISSION_REQUEST_FINE_LOCATION = 2;
 
-    //private Handler mHandler;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothManager bluetoothManager;
     private boolean advertising = false;
     private int PERMISSION = 255;
     private boolean scanning;
 
-    //parte recycle
     private ArrayList<BluetoothDevice> mLeDevices;
     private RecyclerBleAdapter mLeDeviceRecycleAdapter;
     private RecyclerView rvBles;
     //parte de gatt service
     private BluetoothGattServer bluetoothGattServer;
     public static final String TAG = "device_scan_activity";
-
     private ScanResult result;
     public void setResult(ScanResult result){
         this.result=result;
     }
-    //parte de filtro de por nome
-
     private TextView filtro;
     private String inputFiltro;
 
@@ -85,11 +79,10 @@ public class DeviceScanActivity extends AppCompatActivity implements RecyclerVie
         inputFiltro=filtro.getText().toString();
         filtro.setText(inputFiltro);
     }
-    // Device scan callback.
+
     private ScanCallback leScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, final ScanResult result) {
-            //Log.i(TAG, "onScanResult: ");
             super.onScanResult(callbackType, result);
             runOnUiThread(new Runnable() {
                 @Override
@@ -173,7 +166,6 @@ public class DeviceScanActivity extends AppCompatActivity implements RecyclerVie
         }
 
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Log.i(TAG, "onCreate: outro if");
             Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -182,7 +174,6 @@ public class DeviceScanActivity extends AppCompatActivity implements RecyclerVie
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
         if (mBluetoothAdapter == null) {
-            Log.i(TAG, "onCreate: outro if 2");
             Toast.makeText(this, R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -207,10 +198,7 @@ public class DeviceScanActivity extends AppCompatActivity implements RecyclerVie
         }
         return true;
     }
-//    SwipeRefreshLayout mySwipeRefreshLayout;
-//    private void myUpdateOperation(){
-//
-//    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -245,15 +233,13 @@ public class DeviceScanActivity extends AppCompatActivity implements RecyclerVie
     private void scanLeDevice(final boolean enable) {
         if (enable) {
             //scanning until stopped
-            Log.i(TAG, "BLUETOOTH_SCAN = " + String.valueOf(this.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN)));
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED) {
                  // mBluetoothAdapter.getBluetoothLeScanner().startScan(buildScanFilters(), buildScanSettings(), leScanCallback);
                 mBluetoothAdapter.getBluetoothLeScanner().startScan(leScanCallback);
                 scanning = true;
             }
-            //invalidateOptionsMenu();
-            //scanning = true;
-            } else {
+        }
+        else {
                 scanning = false;
                 mBluetoothAdapter.getBluetoothLeScanner().stopScan(leScanCallback);
             }
@@ -356,47 +342,24 @@ public class DeviceScanActivity extends AppCompatActivity implements RecyclerVie
         }
         startActivity(intent);
         invalidateOptionsMenu();
-
     }
-//    final byte[] setServiceData = new byte[]{
-//            0x11,0x50, 0x64
-//    };
-/*
-    //parte de filtro dispositivo
-    private List<ScanFilter> buildScanFilters() {
-        ScanFilter.Builder builder = new ScanFilter.Builder();
-        // parte que estava dando problema com a caracteristica que o fabiano estava passando
-        builder.setServiceUuid(new ParcelUuid(UUID.fromString("a6530bf2-d97e-478f-8814-78549e53f0be")));
-        ScanFilter build = builder.build();
-        List<ScanFilter> filters = new ArrayList<>();
-        filters.add(build);
-        return filters;
-
-    }
-    private ScanSettings buildScanSettings() {
-        ScanSettings.Builder builder = new ScanSettings.Builder();
-        builder.setScanMode(ScanSettings.SCAN_MODE_BALANCED);
-        return builder.build();
-    }
-*/
 
     //parte de gatt service?
     private void advertise(final boolean enable) {
-
         if (enable && mBluetoothAdapter.isMultipleAdvertisementSupported() && !advertising) {
             Log.i(TAG, "advertise: advertising");
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 bluetoothGattServer = bluetoothManager.openGattServer(this, bluetoothGattServerCallback);
             }
-            if (bluetoothGattServer.getService(SampleGattAttributes.SERVICE_UUID) == null) {
-                BluetoothGattService service = new BluetoothGattService(SampleGattAttributes.SERVICE_UUID, BluetoothGattService.SERVICE_TYPE_PRIMARY);
-                BluetoothGattCharacteristic bluetoothGattCharacteristic = new BluetoothGattCharacteristic(SampleGattAttributes.CHARACTERISTIC_UUID, BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_WRITE |
+            if (bluetoothGattServer.getService(SampleGattAttributes.OTA_SERVICE_UUID) == null) {
+                BluetoothGattService service = new BluetoothGattService(SampleGattAttributes.OTA_SERVICE_UUID, BluetoothGattService.SERVICE_TYPE_PRIMARY);
+                BluetoothGattCharacteristic bluetoothGattCharacteristic = new BluetoothGattCharacteristic(SampleGattAttributes.IMAGE_CHARACTERISTIC_UUID, BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_WRITE |
                         BluetoothGattCharacteristic.PROPERTY_NOTIFY,
                         BluetoothGattCharacteristic.PERMISSION_READ | BluetoothGattCharacteristic.PERMISSION_WRITE
                 );
                 bluetoothGattCharacteristic.setValue(mBluetoothAdapter.getName());
-                bluetoothGattCharacteristic.addDescriptor(new BluetoothGattDescriptor(SampleGattAttributes.BLE_NOTIFICATION, BluetoothGattCharacteristic.PERMISSION_WRITE));
+                bluetoothGattCharacteristic.addDescriptor(new BluetoothGattDescriptor(SampleGattAttributes.NEW_IMAGE_CHARACTERISTIC_UUID, BluetoothGattCharacteristic.PERMISSION_WRITE));
                 service.addCharacteristic(bluetoothGattCharacteristic);
                 bluetoothGattServer.addService(service);
             }

@@ -3,16 +3,12 @@ package com.logpyx.auraconfig;
 import java.util.UUID;
 
 public class SampleGattAttributes {
-    //parte que o fabiano comentou dos códigos lá tem na API
-    public static final UUID SERVICE_UUID=UUID.fromString("ffc2dedc-bf02-442e-a69d-b5caff5e9b21");
-    public static final UUID CHARACTERISTIC_UUID=UUID.fromString("fbdca8dd-1b1d-4a4c-bc07-040e80c1cb63");
-    public static final UUID BLE_NOTIFICATION = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-    // Nova API - Contendo um serviço uart com 1 caracteristica Tx e RX.
-    public static final UUID SERVICEUART_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-    public static final UUID CHARACTERISTICRX_UUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
-    public static final UUID CHARACTERISTICTX_UUID = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
+    public static final UUID OTA_SERVICE_UUID =UUID.fromString("8a97f7c0-8506-11e3-baa7-0800200c9a66");
+    public static final UUID IMAGE_CHARACTERISTIC_UUID =UUID.fromString("122e8cc0-8508-11e3-baa7-0800200c9a66");
+    public static final UUID NEW_IMAGE_CHARACTERISTIC_UUID = UUID.fromString("210f99f0-8508-11e3-baa7-0800200c9a66");
+    public static final UUID NEW_IMAGE_TRANSFER_UNIT_CONTENT_CHARACTERISTIC_UUID = UUID.fromString("2691aa80-8508-11e3-baa7-0800200c9a66");
+    public static final UUID NEW_IMAGE_EXPECTED_TRANSFER_UNIT_CHARACTERISTIC_UUID = UUID.fromString("2bdc5760-8508-11e3-baa7-0800200c9a66");
 
-    // Algumas constantes (Por comodidade foram adicionadas aqui)
     public static final int BYTE_STX = 0x02;
     public static final int BYTE_RTX = 0x03;
     public static final int FINDING_NEW_PACKAGE = 0x00;
@@ -20,6 +16,7 @@ public class SampleGattAttributes {
     public static final int READING_OPCODE_DATA = 0x02;
     public static final int READING_CHECKSUM = 0x03;
     public static final int VALIDATING_PACKAGE = 0x04;
+
     // Lista de Commandos implementados no firmware do aura
     public static final int RD_REQUEST_CONNECTION = 0xD0;
     public static final int RD_ALL_INFO_DEVICE = 0xD1;
@@ -39,6 +36,5 @@ public class SampleGattAttributes {
     public static final int WR_ZONE_NEAR_DISTANCE = 0xD4;
     public static final int WR_ZONE_FAR_DISTANCE = 0xD3;
     public static final int WR_ID_CELULAR = 0xDE;
-
     public static final int RD_REQUEST_DISCONNECTION = 0xD8;
 }

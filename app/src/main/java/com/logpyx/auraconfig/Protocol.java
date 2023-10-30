@@ -1,12 +1,8 @@
 package com.logpyx.auraconfig;
 
-import android.util.Log;
-
-import androidx.annotation.LongDef;
-
 public abstract class Protocol implements ReceiveInterface{
     private BluetoothLeService bluetoothLeService;
-    public final static String TAG = Aura.class.getSimpleName();
+    public final static String TAG = Pager.class.getSimpleName();
     public int[] OpcodeDataBuffer = new int[517]; // Buffer para receber dados de RX
     public int DataBufferSize; // Quantidade de dados recebidos
     public int packageLenght;
