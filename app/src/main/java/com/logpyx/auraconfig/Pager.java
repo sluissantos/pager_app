@@ -39,7 +39,7 @@ public class Pager extends Protocol implements ReceiveInterface{
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                sendCommand((byte)SampleGattAttributes.WR_SET_OVERCRANE_PARAM,data,12);
+                //sendCommand((byte)SampleGattAttributes.WR_SET_OVERCRANE_PARAM,data,12);
             }
         };
         handler.postDelayed(runnable,delay);

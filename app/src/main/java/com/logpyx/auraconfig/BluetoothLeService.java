@@ -16,16 +16,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Semaphore;
+import java.util.Queue;
 
 public class BluetoothLeService extends Service implements SendInterface{
     private final static String TAG = BluetoothLeService.class.getSimpleName();
@@ -33,7 +35,6 @@ public class BluetoothLeService extends Service implements SendInterface{
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
-    private BluetoothGattCharacteristic characteristicTx;
     private BluetoothGattCharacteristic characteristicImage;
     private BluetoothGattCharacteristic characteristicNewImage;
     private BluetoothGattCharacteristic characteristicNewImageTransferUnit;
@@ -55,14 +56,59 @@ public class BluetoothLeService extends Service implements SendInterface{
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
 
-    public boolean flag_finished = false;
-
     ReceiveInterface receiveInterface;
 
-    int freeSpaceStart;
-    int freeSpaceEnd;
+    private static int freeSpaceStart;
+    private static int freeSpaceEnd;
+    private static long minAddr = 0;
+    private static long maxAddr = 0;
+    private static int notificationInterval = 8;
+    public static boolean uploadInProgress = false;
+    public static int lastSequence = 0;
+    public static IntelHex firmware;
+    Queue<byte[]> imageDataQueue = new LinkedList<>();
+    public DeviceControlActivity deviceControlActivity;
+    public void setDeviceControlActivity(DeviceControlActivity activity) {
+        this.deviceControlActivity = activity;
+    }
 
-    int freeSpaceAll;
+    public void updateProgressBar(int progress, int error) {
+        if (deviceControlActivity != null) {
+            deviceControlActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    deviceControlActivity.updateProgressBar(progress, error);
+                }
+            });
+        }
+    }
+
+    public enum OtaError {
+        OTA_SUCCESS(0),
+        OTA_FLASH_VERIFY_ERROR(0x3c),
+        OTA_FLASH_WRITE_ERROR(0xff),
+        OTA_SEQUENCE_ERROR(0xf0),
+        OTA_CHECKSUM_ERROR(0x0f);
+
+        private final int value;
+
+        OtaError(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static OtaError valueOf(int value) {
+            for (OtaError error : values()) {
+                if (error.value == value) {
+                    return error;
+                }
+            }
+            throw new IllegalArgumentException("Invalid OtaError value: " + value);
+        }
+    }
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @SuppressLint("MissingPermission")
@@ -75,8 +121,7 @@ public class BluetoothLeService extends Service implements SendInterface{
                 mConnectionState = STATE_CONNECTED;
                 broadcastUpdate(intentAction);
                 Log.i(TAG, "Connected to GATT server.");
-                // Attempts to discover services after successful connection.
-                Log.i(TAG, "onConnectionStateChange: requesting higher mtu " + gatt.requestMtu(517));
+                Log.i(TAG, "onConnectionStateChange: requesting higher mtu " + gatt.requestMtu(23));
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 intentAction = ACTION_GATT_DISCONNECTED;
@@ -119,7 +164,6 @@ public class BluetoothLeService extends Service implements SendInterface{
                             if (characteristic.getUuid().toString().equals(SampleGattAttributes.NEW_IMAGE_EXPECTED_TRANSFER_UNIT_CHARACTERISTIC_UUID.toString())) {
                                 Log.i(TAG, "onServicesDiscovered: found Characteristic NEW_IMAGE_EXPECTED_TRANSFER_UNIT_CHARACTERISTIC_UUID");
                                 characteristicNewImageExpectedTransferUnit = characteristic;
-                                setCharacteristicNotification(characteristic, true);
                             }
                         }
                     }
@@ -132,20 +176,37 @@ public class BluetoothLeService extends Service implements SendInterface{
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            //Log.d(TAG, "onCharacteristicRead: characteristic = " + characteristic.getUuid().toString());
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
                 if (characteristic.getUuid().toString().equals(SampleGattAttributes.IMAGE_CHARACTERISTIC_UUID.toString())) {
                     byte[] response = characteristic.getValue();
-                    // Use ByteBuffer para ler os inteiros de 4 bytes da matriz de bytes
                     ByteBuffer buffer = ByteBuffer.wrap(response);
                     buffer.order(ByteOrder.BIG_ENDIAN);
                     freeSpaceStart = buffer.getInt();
                     freeSpaceEnd = buffer.getInt();
-                    freeSpaceAll = freeSpaceEnd - freeSpaceStart;
-                    Log.i(TAG, "Start: 0x" + Integer.toHexString(freeSpaceStart));
-                    Log.i(TAG, "End: 0x" + Integer.toHexString(freeSpaceEnd));
-                    Log.i(TAG, "Difference in bytes: " + freeSpaceAll);
-                    readFreeSpaceInfo(1);
+                    Log.d(TAG, "Initialized OTA application, application space " + Integer.toHexString(freeSpaceStart) + "-"+
+                    Integer.toHexString(freeSpaceEnd) + " (" + (freeSpaceEnd - freeSpaceStart) + " bytes)");
+                    Log.d(TAG,"minAddr: " + minAddr + ", maxAddr: " + maxAddr);
+                    startOtaBle(1);
+                }
+                if(characteristic.getUuid().toString().equals(SampleGattAttributes.NEW_IMAGE_CHARACTERISTIC_UUID.toString())){
+                    //Log.i(TAG, "onCharacteristicRead: data received from NEW_IMAGE_CHARACTERISTIC_UUID");
+                    byte[] response = characteristic.getValue();
+
+                    ByteBuffer buffer = ByteBuffer.wrap(response);
+                    buffer.order(ByteOrder.LITTLE_ENDIAN);
+
+                    int res_ni = buffer.get() & 0xFF;
+                    int res_size = buffer.getInt();
+                    int res_base = buffer.getInt();
+
+                    if(res_ni != notificationInterval || res_size != (maxAddr-minAddr) || res_base != minAddr){
+                        Log.d(TAG, "writing new image characteristic verify failed!");
+                    }
+                    else {
+                        startOtaBle(3);
+                    }
                 }
             }
         }
@@ -153,16 +214,71 @@ public class BluetoothLeService extends Service implements SendInterface{
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             // broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-            Log.i(TAG, "characteristic = " + characteristic.getUuid().toString());
-            byte[] value = characteristic.getValue();
-            for (int k = 0; k < value.length; k++){
-                if (value[k] < 0) {
-                    value[k] = (byte) (value[k] + 256);
+            if(characteristic.getUuid().toString().equals(SampleGattAttributes.NEW_IMAGE_EXPECTED_TRANSFER_UNIT_CHARACTERISTIC_UUID.toString()) &&
+                    uploadInProgress){
+                //Log.d(TAG, "onCharacteristicChanged: NEW_IMAGE_EXPECTED_TRANSFER_UNIT_CHARACTERISTIC_UUID");
+                byte[] data = characteristic.getValue();
+                notification(data);
+            }
+        }
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                String characteristicUUID = characteristic.getUuid().toString();
+                //Log.d(TAG, "onCharacteristicWrite successful for characteristic: " + characteristicUUID);
+
+                byte[] writtenValue = characteristic.getValue();
+                if (writtenValue != null) {
+                    //Log.d(TAG, "Bytes written: " + bytesToHex(writtenValue));
+                } else {
+                    Log.d(TAG, "No bytes written.");
                 }
-                receiveInterface.extractMessage(value[k]);
+
+                if (characteristic.getUuid().toString().equals(SampleGattAttributes.NEW_IMAGE_CHARACTERISTIC_UUID.toString())) {
+                    startOtaBle(2);
+                }
+
+                if (characteristic.getUuid().toString().equals(SampleGattAttributes.NEW_IMAGE_TRANSFER_UNIT_CONTENT_CHARACTERISTIC_UUID.toString())) {
+                    imageDataQueue.poll(); // Remove o primeiro elemento da fila, pois foi enviado com sucesso
+                    sendImageData(characteristicNewImageTransferUnit);
+                }
+            } else {
+                String characteristicUUID = characteristic.getUuid().toString();
+                Log.e(TAG, "onCharacteristicWrite failed for characteristic: " + characteristicUUID);
+            }
+        }
+
+        private String bytesToHex(byte[] bytes) {
+            StringBuilder sb = new StringBuilder();
+            for (byte b : bytes) {
+                sb.append(String.format("%02x ", b));
+            }
+            return sb.toString();
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                //Log.i(TAG, "Descriptor write successful");
+                //Log.i(TAG, "Characteristic UUID: " + descriptor.getCharacteristic().getUuid().toString());
+                //1Log.i(TAG, "Descriptor UUID: " + descriptor.getUuid().toString());
+                if (descriptor.getCharacteristic().getUuid().toString().equals(SampleGattAttributes.NEW_IMAGE_EXPECTED_TRANSFER_UNIT_CHARACTERISTIC_UUID.toString()) &&
+                        descriptor.getUuid().toString().equals(SampleGattAttributes.NOTIFICATION_DESCRIPTOR_UUID.toString())) {
+                    startOtaBle(4);
+                }
+            } else {
+                Log.e(TAG, "Descriptor write failed with status: " + status);
             }
         }
     };
+
+    public String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x ", b));
+        }
+        return sb.toString();
+    }
 
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
@@ -180,8 +296,8 @@ public class BluetoothLeService extends Service implements SendInterface{
     }
 
     @Override
-    public int sendData(byte[] data) {
-        return send(data);
+    public int sendData(byte[] data, BluetoothGattCharacteristic characteristic) {
+        return send(data, characteristic);
     }
 
     @Override
@@ -290,7 +406,6 @@ public class BluetoothLeService extends Service implements SendInterface{
             return;
         }
         mBluetoothGatt.readCharacteristic(characteristic);
-        flag_finished = true;
     }
 
     @SuppressLint("MissingPermission")
@@ -301,10 +416,10 @@ public class BluetoothLeService extends Service implements SendInterface{
             return;
         }
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
-        Log.i(TAG, "characteristic = " + characteristic.getUuid().toString());
+        //Log.i(TAG, "characteristic = " + characteristic.getUuid().toString());
         for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            Log.i(TAG, "Descriptor: " + descriptor.getUuid().toString() + "-Notificação Ativada");
+            Log.i(TAG, "Descriptor: " + descriptor.getUuid().toString() + " - Notificação Ativada");
             mBluetoothGatt.writeDescriptor(descriptor);
         }
     }
@@ -315,6 +430,56 @@ public class BluetoothLeService extends Service implements SendInterface{
         return mBluetoothGatt.getServices();
     }
 
+    public byte[] writeImageBlock(int sequence, boolean requestAck) {
+        byte[] image = this.firmware.toBinArray((int)(this.minAddr + sequence * 16), (int)(this.minAddr + sequence * 16 + 15));
+        int needsAck = requestAck ? 1 : 0;
+        int checksum = needsAck ^ (sequence % 256) ^ (sequence >> 8);
+        for (byte b : image) {
+            checksum ^= b;
+        }
+        byte[] imageData = new byte[20];
+        imageData[0] = (byte) checksum;
+        System.arraycopy(image, 0, imageData, 1, 16);
+        imageData[17] = (byte) needsAck;
+        imageData[18] = (byte) (sequence & 0xFF);
+        imageData[19] = (byte) ((sequence >> 8) & 0xFF);
+
+        return imageData;
+    }
+
+    private void notification(byte[] data) {
+        int nextSequence = ((data[1] & 0xFF) << 8) | (data[0] & 0xFF);
+        int error = ((data[3] & 0xFF) << 8) | (data[2] & 0xFF);
+        OtaError status = OtaError.valueOf(error);
+        Log.d(TAG, String.format("sending block %d of %d", nextSequence, this.lastSequence));
+        int percentage = (int) (((double) nextSequence / this.lastSequence) * 100);
+        updateProgressBar(percentage, error);
+        if (error != 0) {
+            Log.d(TAG, String.format("Received notification for expected tu, seq: %d, status: %s%n", nextSequence, status));
+            Log.d(TAG, "Received error, retrying...");
+            uploadInProgress = false;
+            return;
+        }
+        if (nextSequence <= this.lastSequence) {
+            for (int i = nextSequence; i < nextSequence + this.notificationInterval; i++) {
+                boolean requestAck = i == nextSequence + this.notificationInterval - 1;
+                if (i <= this.lastSequence) {
+                    if (i == this.lastSequence) {
+                        requestAck = true;
+                    }
+                    byte[] imageData = writeImageBlock(i, requestAck);
+                    imageDataQueue.add(imageData);
+                }
+            }
+
+            sendImageData(characteristicNewImageTransferUnit);
+
+        } else {
+            Log.d(TAG, "\nUpload finished");
+            uploadInProgress = false;
+        }
+    }
+
     /*
     Função: send(byte[] data)
     Descrição: Envia um array de byts para caracteristicaRX.
@@ -322,30 +487,89 @@ public class BluetoothLeService extends Service implements SendInterface{
 
     @return:    int length -> Quantidade de dados enviados
     */
-    public int send(byte[] data) {
+    public int send(byte[] data, BluetoothGattCharacteristic characteristic) {
         synchronized (this) {
-            this.characteristicImage.setValue(data);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
-                if(this.characteristicImage !=null){
-                    Log.i(TAG, "send: Rx not null");
-                    mBluetoothGatt.writeCharacteristic(this.characteristicImage);
-                }else{
-                    Log.i(TAG, "send: Rx null");
+            if (characteristic != null) {
+                characteristic.setValue(data);
+                try {
+                    mBluetoothGatt.writeCharacteristic(characteristic);
+                    //Log.d(TAG, "Sent data to characteristic: " + characteristic.getUuid().toString());
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to write characteristic: " + e.getMessage());
                 }
+            } else {
+                Log.i(TAG, "Characteristic is null");
             }
         }
         return data.length;
     }
 
-    public void readFreeSpaceInfo(int state) {
-        switch (state){
-            case 0:
-                readCharacteristic(characteristicImage);
-                break;
-
-            case 1:
-
+    private void sendImageData(BluetoothGattCharacteristic characteristic) {
+        synchronized (this) {
+            if (!imageDataQueue.isEmpty()) {
+                if (characteristic != null) {
+                    byte[] data = imageDataQueue.peek(); // Obtém o próximo conjunto de dados na fila
+                    characteristic.setValue(data);
+                    try {
+                        mBluetoothGatt.writeCharacteristic(characteristic);
+                        //Log.d(TAG, "Sent data to characteristic: " + characteristic.getUuid().toString());
+                    } catch (Exception e) {
+                        Log.e(TAG, "Failed to write characteristic: " + e.getMessage());
+                    }
+                }
+            }
         }
+    }
+
+    public void startOtaBle(int state) {
+        if(this.minAddr != 0 && this.maxAddr != 0) {
+            switch (state) {
+                case 0:
+                    readCharacteristic(characteristicImage);
+                    break;
+
+                case 1:
+                    if(minAddr<freeSpaceStart || minAddr>freeSpaceEnd || maxAddr > freeSpaceEnd){
+                        String message = String.format("program image out of allowed range (image: 0x%x-0x%x, device: 0x%x-0x%x)",
+                                minAddr, minAddr + maxAddr, freeSpaceStart, freeSpaceEnd);
+                        Log.d(TAG, "readFreeSpaceInfo: " + message);
+                    }
+                    ByteBuffer buffer = ByteBuffer.allocate(9);
+                    buffer.order(ByteOrder.LITTLE_ENDIAN);
+                    buffer.put((byte) notificationInterval);
+                    buffer.putInt((int) (maxAddr - minAddr));
+                    buffer.putInt((int) minAddr);
+                    byte[] data = buffer.array();
+
+                    StringBuilder sb = new StringBuilder();
+                    for (byte b : data) {
+                        sb.append(String.format("0x%02X ", b));
+                    }
+                    //Log.d(TAG, "Data in bytes: " + sb.toString());
+
+                    send(data, characteristicNewImage);
+                    break;
+                case 2:
+                    readCharacteristic(characteristicNewImage);
+                    break;
+                case 3:
+                    setCharacteristicNotification(characteristicNewImageExpectedTransferUnit, true);
+                    break;
+                case 4:
+                    this.lastSequence = (((int)maxAddr - (int)minAddr + 15) >> 4) - 1;
+                    Log.d(TAG, "Starting upload, last sequence: " + this.lastSequence);
+                    uploadInProgress = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    public void setFile(long minAddr, long maxAddr, IntelHex file){
+        this.minAddr = minAddr;
+        this.maxAddr = maxAddr;
+        this.firmware = file;
     }
 }
 

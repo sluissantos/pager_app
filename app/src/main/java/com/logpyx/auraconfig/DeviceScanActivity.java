@@ -336,8 +336,8 @@ public class DeviceScanActivity extends AppCompatActivity implements RecyclerVie
             else intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, "Unknown");
             intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS,device.getAddress());
             if(scanning){
-                mBluetoothAdapter.getBluetoothLeScanner().stopScan(leScanCallback);
-                scanning=false;
+                //mBluetoothAdapter.getBluetoothLeScanner().stopScan(leScanCallback);
+                //scanning=false;
             }
         }
         startActivity(intent);

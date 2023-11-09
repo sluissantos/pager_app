@@ -1,5 +1,7 @@
 package com.logpyx.auraconfig;
 
+import android.media.audiofx.AudioEffect;
+
 import java.util.UUID;
 
 public class SampleGattAttributes {
@@ -8,7 +10,7 @@ public class SampleGattAttributes {
     public static final UUID NEW_IMAGE_CHARACTERISTIC_UUID = UUID.fromString("210f99f0-8508-11e3-baa7-0800200c9a66");
     public static final UUID NEW_IMAGE_TRANSFER_UNIT_CONTENT_CHARACTERISTIC_UUID = UUID.fromString("2691aa80-8508-11e3-baa7-0800200c9a66");
     public static final UUID NEW_IMAGE_EXPECTED_TRANSFER_UNIT_CHARACTERISTIC_UUID = UUID.fromString("2bdc5760-8508-11e3-baa7-0800200c9a66");
-
+    public static final UUID NOTIFICATION_DESCRIPTOR_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
     public static final int BYTE_STX = 0x02;
     public static final int BYTE_RTX = 0x03;
     public static final int FINDING_NEW_PACKAGE = 0x00;
@@ -37,4 +39,6 @@ public class SampleGattAttributes {
     public static final int WR_ZONE_FAR_DISTANCE = 0xD3;
     public static final int WR_ID_CELULAR = 0xDE;
     public static final int RD_REQUEST_DISCONNECTION = 0xD8;
+
+
 }

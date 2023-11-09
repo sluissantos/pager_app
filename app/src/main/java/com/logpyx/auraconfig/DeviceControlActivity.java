@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,15 +24,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,11 +70,13 @@ public class DeviceControlActivity extends AppCompatActivity{
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             bluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
-            if (bluetoothLeService != null) {
+
+                if (bluetoothLeService != null) {
                 if (!bluetoothLeService.initialize()) {
                     Log.e(TAG, "Unable to initialize Bluetooth");
                     finish();
                 }
+                bluetoothLeService.setDeviceControlActivity(DeviceControlActivity.this);
                 bluetoothLeService.connect(mDeviceAddress);
                 pager = new Pager((SendInterface) bluetoothLeService);
             }
@@ -105,13 +112,21 @@ public class DeviceControlActivity extends AppCompatActivity{
 
     private TextView fileDirTextView;
 
+    private TextView statusOtaTextView;
+
     private Button reconectar;
 
     private Button selectFileButton;
 
     private Button startButton;
 
+    private long minAddr = 0;
+
+    private long maxAddr = 0;
+
     private boolean mSoliciteInfoAtived=false;
+
+    public ProgressBar progressBar;
 
     @SuppressLint({"RestrictedApi", "ClickableViewAccessibility"})
     @Override
@@ -138,7 +153,11 @@ public class DeviceControlActivity extends AppCompatActivity{
 
         startButton = findViewById(R.id.startButton);
 
+        progressBar = findViewById(R.id.progressBar);
+
         fileDirTextView = findViewById(R.id.fileDirText);
+        statusOtaTextView = findViewById(R.id.statusOtaText);
+
         reconectar = findViewById(R.id.reconnectButton);
         selectFileButton = findViewById(R.id.selectFileButton);
         selectFileButton.setOnClickListener(new View.OnClickListener() {
@@ -162,6 +181,19 @@ public class DeviceControlActivity extends AppCompatActivity{
         }
     }
 
+    public void updateProgressBar(int progress, int error) {
+        if(error != 0) {
+            statusOtaTextView.setText("Error OTA!");
+            statusOtaTextView.setBackgroundColor(Color.RED); // Substitua Color.RED pela cor desejada
+        } else if (progress<100) {
+            statusOtaTextView.setText("OTA em progresso...");
+            progressBar.setProgress(progress);
+        } else {
+            statusOtaTextView.setText(("OTA finalizado!"));
+            statusOtaTextView.setBackgroundColor(Color.GREEN); // Substitua Color.RED pela cor desejada
+        }
+    }
+
     private static final int READ_REQUEST_CODE = 42; // código de solicitação personalizado
 
     public void handleOpenFileExplorer() {
@@ -174,8 +206,7 @@ public class DeviceControlActivity extends AppCompatActivity{
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         super.onActivityResult(requestCode, resultCode, resultData);
-        super.onActivityResult(requestCode, resultCode, resultData);
-        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK && mConnected) {
             if (resultData != null) {
                 Uri uri = resultData.getData();
                 String fileName = getFileName(uri);
@@ -187,19 +218,34 @@ public class DeviceControlActivity extends AppCompatActivity{
                     if (inputStream != null) {
                         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                         StringBuilder stringBuilder = new StringBuilder();
-                        int lineCount = 0;
                         String line;
-                        while ((line = reader.readLine()) != null && lineCount < 5) {
+                        while ((line = reader.readLine()) != null) {
                             stringBuilder.append(line);
                             stringBuilder.append("\n");
-                            lineCount++;
                         }
                         String content = stringBuilder.toString();
-                        Log.d("File Content", content);
+
+                        IntelHex hex = new IntelHex(new BufferedReader(new StringReader(content)));
+                        minAddr = Integer.MAX_VALUE;
+                        maxAddr = 0;
+                        for (Memory mem : hex.memorySegments) {
+                            if (mem.address < minAddr) {
+                                minAddr = mem.address;
+                            }
+                            if (mem.address + mem.data.length > maxAddr) {
+                                maxAddr = mem.address + mem.data.length;
+                            }
+                        }
+                        maxAddr--;
                         inputStream.close();
+                        bluetoothLeService.setFile(minAddr, maxAddr, hex);
+                        if(minAddr == 0 && maxAddr == 0){
+                            Toast.makeText(getApplicationContext(), "Erro ao obter endereço mínimo e máximo.", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Erro no arquivo.", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -267,7 +313,7 @@ public class DeviceControlActivity extends AppCompatActivity{
 
     public void handleStartOtaPager(View view){
         if (mConnected){
-            bluetoothLeService.readFreeSpaceInfo(0);
+            bluetoothLeService.startOtaBle(0);
         }
     }
 
@@ -329,8 +375,7 @@ public class DeviceControlActivity extends AppCompatActivity{
                    reconectar.setVisibility((View.GONE));
                 }
                 else{
-                    reconectar.setVisibility(View.VISIBLE);
-
+                    //reconectar.setVisibility(View.VISIBLE);
                 }
             }
         });

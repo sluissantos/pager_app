@@ -48,7 +48,7 @@ public abstract class Protocol implements ReceiveInterface{
 
         if (this.sendInterface != null) {
             //Log.i("TAG", "sendCommand() called with: command = [" + command + "], dataBuffer = [" + dataBuffer + "], dataBufferSize = [" + dataBufferSize + "]");
-            dataWasSended = sendInterface.sendData(packageBuffer);
+            //dataWasSended = sendInterface.sendData(packageBuffer);
         }
         return dataWasSended;
     }
